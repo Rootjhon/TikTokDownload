@@ -70,6 +70,8 @@ def main():
 
 # @retry(stop_max_attempt_number=3)
 def download(video_url, music_url, video_title, music_title, headers, music, name):
+    video_path = None
+    music_path = None
     # 视频下载
     if video_url == '':
         print('[  提示  ]:该视频可能无法下载哦~\r')
@@ -83,7 +85,9 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
             music_title = Util.replaceT(music_title)
             if name == "":
                 name = video_title
-            with open(f'{name}.mp4', 'wb') as f:
+                pass
+            video_path = f'{name}.mp4'
+            with open(video_path, 'wb') as f:
                 f.write(r.content)
                 print('[  视频  ]:%s.mp4 下载完成\r' % name)
 
@@ -97,10 +101,11 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
             # return
         else:
             r = requests.get(url=music_url, headers=headers)
-            with open(f'{music_title}.mp3', 'wb') as f:
+            music_path = f'{music_title}.mp3'
+            with open(music_path, 'wb') as f:
                 f.write(r.content)
                 print('[  音频  ]:%s.mp3 下载完成\r' % music_title)
-            # return
+    return video_path,music_path
 
 
 def video_download(url, music, name, headers):
@@ -141,16 +146,59 @@ def video_download(url, music, name, headers):
         print('[  提示  ]:标题获取失败\r')
         video_title = '视频走丢啦~'
         music_title = '音频走丢啦~'
-    download(video_url, music_url, video_title,
+    return download(video_url, music_url, video_title,
                 music_title, headers, music, name)
 
 
+# if __name__ == "__main__":
+#     url, music, name = main()
+#     # 获取命令行参数
+#     cmd = Util.Command()
+#     # 获取headers
+#     headers = Util.Cookies(cmd.setting()).dyheaders
+#     video_download(url, music, name, headers)
+#     input('[  提示  ]:按任意键退出')
+#     sys.exit()
+
+
 if __name__ == "__main__":
-    url, music, name = main()
-    # 获取命令行参数
+    import os
+    import shutil
+    save_dir_path = "/Users/junqiang/Desktop/ttvideo"
+    # 获取命令行参数s
     cmd = Util.Command()
-    # 获取headers
-    headers = Util.Cookies(cmd.setting()).dyheaders
-    video_download(url, music, name, headers)
-    input('[  提示  ]:按任意键退出')
-    sys.exit()
+    
+    def __getURls():
+        urls = []
+        with open(f"{save_dir_path}/downloadlist.txt","r")as f:
+            lines = f.read().split("\n")
+            for v in lines:
+                for l in v.split(" "):
+                    if l.startswith("https://"):
+                        urls.append(l)
+                    pass
+                pass
+            pass
+        return urls
+        pass
+    
+
+    def __dl(url):
+        music = False
+        name = ""
+        
+        # 获取headers
+        headers = Util.Cookies(cmd.setting()).dyheaders
+        video_path,music_path = video_download(url, music, name, headers)
+        
+        os.makedirs(save_dir_path,exist_ok=True)
+        if video_path is not None:
+            shutil.move(video_path,f"{save_dir_path}/{os.path.basename(video_path)}")
+            pass
+        pass
+    
+    urls = __getURls()
+    for url in urls:
+        __dl(url=url)
+        pass
+    pass

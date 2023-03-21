@@ -89,7 +89,7 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
             video_path = f'{name}.mp4'
             with open(video_path, 'wb') as f:
                 f.write(r.content)
-                print('[  视频  ]:%s.mp4 下载完成\r' % name)
+                print('[  视频  ]:%s.mp4 下载完成\r' % name,flush=True)
 
     if music_url == '':
         print('[  提示  ]:下载出错\r')
@@ -182,6 +182,21 @@ if __name__ == "__main__":
         return urls
         pass
     
+    def __getfilename(val) ->str:
+        file_info = os.path.splitext(val)
+        val = file_info[0]
+        news = val.split("_")
+        vals = []
+        for v in news:
+            if v.startswith('#'):
+                vals.append(f"{v}#")
+            else:
+                vals.append(v)
+            pass
+        file_name = '_'.join(vals)
+        new_file_path = f"{file_name}{file_info[1]}"
+        return new_file_path
+        pass
 
     def __dl(url):
         music = False
@@ -193,7 +208,7 @@ if __name__ == "__main__":
         
         os.makedirs(save_dir_path,exist_ok=True)
         if video_path is not None:
-            shutil.move(video_path,f"{save_dir_path}/{os.path.basename(video_path)}")
+            shutil.move(video_path,f"{save_dir_path}/{__getfilename(os.path.basename(video_path)) }")
             pass
         pass
     
@@ -202,3 +217,5 @@ if __name__ == "__main__":
         __dl(url=url)
         pass
     pass
+
+# https://studio.ixigua.com/upload?from=post_article

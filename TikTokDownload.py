@@ -89,7 +89,9 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
             video_path = f'{name}.mp4'
             with open(video_path, 'wb') as f:
                 f.write(r.content)
+                f.flush()
                 print('[  视频  ]:%s.mp4 下载完成\r' % name,flush=True)
+                pass
 
     if music_url == '':
         print('[  提示  ]:下载出错\r')
@@ -164,7 +166,15 @@ def video_download(url, music, name, headers):
 if __name__ == "__main__":
     import os
     import shutil
-    save_dir_path = "/Users/junqiang/Desktop/ttvideo"
+    save_dir_path = "/Users/junqiangzhu/Desktop/ttvideo"
+    os.makedirs(save_dir_path,exist_ok=True)
+    VideoUrls = os.getenv("VideoUrls")
+    print(VideoUrls,flush=True)
+    with open(f"{save_dir_path}/downloadlist.txt","wb")as f:
+        f.write(VideoUrls.encode())
+        f.flush()
+        pass
+
     # 获取命令行参数s
     cmd = Util.Command()
     

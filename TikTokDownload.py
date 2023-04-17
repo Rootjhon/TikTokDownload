@@ -77,7 +77,12 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
         print('[  提示  ]:该视频可能无法下载哦~\r')
         return
     else:
-        r = requests.get(url=video_url, headers=headers)
+        try:
+            r = requests.get(url=video_url, headers=headers)
+        except Exception as e:
+            print(f"下载链接异常，{url}",flush=True)
+            return video_path,music_path
+            pass
         if not Util.Status_Code(r.status_code):
             if video_title == '':
                 video_title = '[  提示  ]:此视频没有文案_%s\r' % music_title

@@ -99,7 +99,7 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
                 pass
 
     if music_url == '':
-        print('[  提示  ]:下载出错\r')
+        print('[  提示  ]:视频原声链接为空\r')
         # return
     else:
         # 原声下载
@@ -111,13 +111,18 @@ def download(video_url, music_url, video_title, music_title, headers, music, nam
             music_path = f'{music_title}.mp3'
             with open(music_path, 'wb') as f:
                 f.write(r.content)
+                f.flush()
                 print('[  音频  ]:%s.mp3 下载完成\r' % music_title)
     return video_path,music_path
 
 
 def video_download(url, music, name, headers):
-    r = requests.get(url=Find(url)[0])
-    key = re.findall('video/(\d+)?', str(r.url))[0]
+    try:
+        r = requests.get(url=Find(url)[0])
+        key = re.findall('video/(\d+)?', str(r.url))[0]
+    except:
+        print(f"视频链接不可用{url}",flush=True)
+        return None,None
     # 官方接口
     # 旧接口22/12/23失效
     # jx_url = f'https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids={self.aweme_id[i]}'
@@ -153,6 +158,7 @@ def video_download(url, music, name, headers):
         print('[  提示  ]:标题获取失败\r')
         video_title = '视频走丢啦~'
         music_title = '音频走丢啦~'
+        return None,None
     return download(video_url, music_url, video_title,
                 music_title, headers, music, name)
 
@@ -196,23 +202,7 @@ if __name__ == "__main__":
             pass
         return urls
         pass
-    
-    def __getfilename(val) ->str:
-        file_info = os.path.splitext(val)
-        val = file_info[0]
-        news = val.split("_")
-        vals = []
-        for v in news:
-            if v.startswith('#'):
-                vals.append(f"{v}#")
-            else:
-                vals.append(v)
-            pass
-        file_name = '_'.join(vals)
-        new_file_path = f"{file_name}{file_info[1]}"
-        return new_file_path
-        pass
-
+   
     def __dl(url):
         music = False
         name = ""
@@ -220,16 +210,18 @@ if __name__ == "__main__":
         # 获取headers
         headers = Util.Cookies(cmd.setting()).dyheaders
         video_path,music_path = video_download(url, music, name, headers)
+        if video_path is not None:
+            pass
         
         os.makedirs(save_dir_path,exist_ok=True)
         if video_path is not None:
-            shutil.move(video_path,f"{save_dir_path}/{__getfilename(os.path.basename(video_path)) }")
+            shutil.move(video_path,f"{save_dir_path}/{os.path.basename(video_path)}")
             pass
         pass
     
     urls = __getURls()
     for url in urls:
-        __dl(url=url)
+        __dl(url=str(url).strip())
         pass
     pass
 
